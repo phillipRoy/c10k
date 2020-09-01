@@ -18,20 +18,22 @@ ThreadPool::~ThreadPool() {
 // -- Define Methods
 void ThreadPool::jobDispatcher() {
   while(true) {
-    {
-      std::unique_lock<std::mutex> lock(queueMutext);
+      std::unique_lock<std::mutex> lock(queueMutex);
 
-      condition.wait(lock, []{return !jobs.empty() || terminatePool});
+      condition.wait(lock, [&]{return !jobs.empty() || terminatePool;});
 
       std::function<void()> job = jobs.front();
       jobs.pop();
-    }
-    job();
+      job();
   }
 }
 
 void ThreadPool::addJob(std::function<void()> job) {
-
+  {
+    std::unique_lock<std::mutex> lock(queueMutex);
+    jobs.push(job);
+  }
+  condition.notify_one();
 }
 
 void ThreadPool::start() {
