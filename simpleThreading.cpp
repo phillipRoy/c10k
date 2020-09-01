@@ -16,9 +16,8 @@ int main() {
 
   // -- Spawn and Join Threads
   for(unsigned x(0); x < CLIENTS; x++) {
-    std::thread a(uselessOperation);
-    a.join();
-    thread_list.push_back(a);
+    thread_list.emplace_back(uselessOperation);
+    thread_list[x].join();
   }
 
   // -- Free Thread Handles
