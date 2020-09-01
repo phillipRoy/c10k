@@ -1,10 +1,12 @@
 #include <thread>
 #include <vector>
+#include <iostream>
 
 // -- Do Something
 void uselessOperation() {
-  const int a(2), b(2);
-  a + b;
+  for(unsigned x(0); x < 1000000; x++) {
+    continue;
+  }
 }
 
 
@@ -22,5 +24,6 @@ int main() {
 
   // -- Free Thread Handles
   thread_list.empty();
+
   return 0;
 }
