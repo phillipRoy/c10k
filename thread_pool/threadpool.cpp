@@ -2,13 +2,18 @@
 
 // -- Define De/Constructors
 ThreadPool::ThreadPool()
+  : maxThreads(4)
 {}
 
 ThreadPool::ThreadPool(unsigned int numThreads)
+  : maxThreads(numThreads)
 {}
 
-ThreadPool::~ThreadPool()
-{}
+ThreadPool::~ThreadPool() {
+  if(!stopped) {
+    shutdown();
+  }
+}
 
 // -- Define Methods
 void ThreadPool::jobDispatcher() {
