@@ -37,7 +37,9 @@ void ThreadPool::addJob(std::function<void()> job) {
 }
 
 void ThreadPool::start() {
-
+  for(unsigned x(0); x < maxThreads; x++) {
+    workers.emplace_back(&ThreadPool::jobDispatcher, this);
+  }
 }
 
 void ThreadPool::shutdown() {
