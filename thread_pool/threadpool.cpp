@@ -18,12 +18,18 @@ ThreadPool::~ThreadPool() {
 // -- Define Methods
 void ThreadPool::jobDispatcher() {
   while(true) {
-      std::unique_lock<std::mutex> lock(queueMutex);
+      std::function<void()> job;
+      {
+        std::unique_lock<std::mutex> lock(queueMutex);
 
-      condition.wait(lock, [&]{return !jobs.empty() || terminatePool;});
-
-      std::function<void()> job = jobs.front();
-      jobs.pop();
+        condition.wait(lock, [&]{return !jobs.empty() || terminatePool;});
+        
+        if (jobs.empty())
+            return;
+        job = jobs.front();
+        
+        jobs.pop();
+      }
       job();
   }
 }
@@ -43,5 +49,14 @@ void ThreadPool::start() {
 }
 
 void ThreadPool::shutdown() {
-
+    std::unique_lock<std::mutex> lock(threadPoolMutex);
+    terminatePool = true;
+    
+    condition.notify_all();
+    
+    for(std::thread &every_thread : workers)
+        every_thread.join();
+        
+    workers.clear();
+    stopped = true; 
 }
